@@ -35,6 +35,11 @@ body {
   background: var(--bg-primary);
 }
 
+/* iOS scrolls the root element even with body overflow hidden. */
+html {
+  overflow-x: hidden;
+}
+
 body {
   min-height: 100%;
   color: var(--text-primary);
@@ -118,6 +123,10 @@ h1 {
 
 audio {
   width: 100%;
+  max-width: 100%;
+  /* iOS media controls have a large intrinsic width and will not shrink
+     as a flex item without this. */
+  min-width: 0;
 }
 
 .m1-seek-label {
@@ -127,6 +136,9 @@ audio {
 
 #m1-seek {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
   accent-color: var(--accent-primary);
 }
 
