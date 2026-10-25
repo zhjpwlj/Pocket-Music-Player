@@ -206,6 +206,52 @@ function initM1Proof() {
     if (objectUrl) URL.revokeObjectURL(objectUrl);
   });
 
+  // Long-press the Pocket title for 1s to toggle an on-screen debug log.
+  const mark = document.querySelector('.app-mark');
+  const debug = document.getElementById('debug-log');
+  let pressTimer = 0;
+  let debugTimer = 0;
+
+  const refreshDebug = async () => {
+    if (!debug || debug.hidden) return;
+    const reg = navigator.serviceWorker ? await navigator.serviceWorker.getRegistration() : null;
+    const keys = typeof caches === 'undefined' ? [] : await caches.keys();
+    const app = document.getElementById('app');
+    const rect = app.getBoundingClientRect();
+    debug.textContent = [
+      `version   v${__APP_VERSION__}`,
+      `url       ${location.href}`,
+      `viewport  ${window.innerWidth}x${window.innerHeight}`,
+      `app       ${Math.round(rect.width)}x${Math.round(rect.height)}`,
+      `isolated  ${window.crossOriginIsolated}`,
+      `SAB       ${typeof SharedArrayBuffer}`,
+      `sw        ${reg?.active?.state ?? 'none'}`,
+      `caches    ${keys.join(', ') || 'none'}`,
+      `audio     ${audio.paused ? 'paused' : 'playing'} ${audio.currentTime.toFixed(1)}/${Number.isFinite(audio.duration) ? audio.duration.toFixed(1) : '?'} loop=${audio.loop}`,
+      `media     ${navigator.mediaSession?.playbackState ?? 'n/a'}`,
+      `wrap      ${wrapCount}`,
+    ].join('\n');
+  };
+
+  const toggleDebug = () => {
+    if (!debug) return;
+    debug.hidden = !debug.hidden;
+    clearInterval(debugTimer);
+    if (!debug.hidden) {
+      refreshDebug();
+      debugTimer = setInterval(refreshDebug, 1000);
+    }
+  };
+
+  mark?.addEventListener('pointerdown', () => {
+    clearTimeout(pressTimer);
+    pressTimer = setTimeout(toggleDebug, 1000);
+  });
+  for (const type of ['pointerup', 'pointercancel', 'pointerleave']) {
+    mark?.addEventListener(type, () => clearTimeout(pressTimer));
+  }
+  mark?.addEventListener('contextmenu', (event) => event.preventDefault());
+
   syncAppHeight();
   logEnvironment();
 }
