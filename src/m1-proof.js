@@ -6,6 +6,7 @@ let objectUrl = null;
 let lastTime = 0;
 let suppressWrap = false;
 let manualSeek = false;
+let draggingSeek = false;
 let wrapCount = 0;
 let heightFrame = 0;
 
@@ -39,7 +40,10 @@ function initM1Proof() {
         audio.load();
       }
       if (audio.readyState > 0) {
+        // Guard before moving currentTime: timeupdate can beat seeking.
         manualSeek = true;
+        suppressWrap = true;
+        lastTime = 0;
         audio.currentTime = 0;
       }
       const playPromise = audio.play();
@@ -96,7 +100,7 @@ function initM1Proof() {
       suppressWrap = false;
       manualSeek = false;
       lastTime = now;
-      if (seek && document.activeElement !== seek) seek.value = String(now);
+      if (seek && !draggingSeek) seek.value = String(now);
       return;
     }
     manualSeek = false;
@@ -109,12 +113,25 @@ function initM1Proof() {
       setStatus(`Wrap #${wrapCount} at ${formatSeconds(audio.duration)}. Session still open.`);
     }
     lastTime = now;
-    if (seek && document.activeElement !== seek) seek.value = String(now);
+    if (seek && !draggingSeek) seek.value = String(now);
   });
+
+  // iOS keeps focus on a touched range, so focus is not a drag signal.
+  seek?.addEventListener('pointerdown', () => {
+    draggingSeek = true;
+  });
+  for (const type of ['pointerup', 'pointercancel', 'blur']) {
+    seek?.addEventListener(type, () => {
+      draggingSeek = false;
+    });
+  }
 
   seek?.addEventListener('input', () => {
     if (!Number.isFinite(audio.duration)) return;
+    // Guard before moving currentTime: timeupdate can beat seeking.
     manualSeek = true;
+    suppressWrap = true;
+    lastTime = Number(seek.value);
     audio.currentTime = Number(seek.value);
   });
 
