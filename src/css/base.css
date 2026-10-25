@@ -48,6 +48,9 @@ body {
   font-size: var(--font-size-base);
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 /* 100dvh is primary. 100lvh is the standalone fallback for iOS 26 builds
@@ -89,9 +92,6 @@ body {
   font-size: 18px;
   font-weight: 700;
   letter-spacing: 0.02em;
-  -webkit-user-select: none;
-  user-select: none;
-  -webkit-touch-callout: none;
 }
 
 .app-badge {
@@ -237,6 +237,8 @@ button:disabled {
   font-size: 11px;
   white-space: pre-wrap;
   z-index: 10;
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 @media (prefers-reduced-motion: reduce) {
