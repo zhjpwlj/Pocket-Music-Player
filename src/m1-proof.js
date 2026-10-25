@@ -27,6 +27,18 @@ function initM1Proof() {
     if (status) status.textContent = text;
   };
 
+  const paintSeek = (t) => {
+    if (!seek || !Number.isFinite(audio.duration) || audio.duration <= 0) return;
+    const pct = Math.min(100, Math.max(0, (t / audio.duration) * 100));
+    seek.style.setProperty('--seek-progress', `${pct}%`);
+  };
+
+  const showSeek = (t) => {
+    if (!seek || draggingSeek) return;
+    seek.value = String(t);
+    paintSeek(t);
+  };
+
   // iOS keeps the audio session open only when the element never reaches a
   // natural end. loop = true makes the 30s clip wrap instead.
   audio.loop = true;
@@ -64,6 +76,7 @@ function initM1Proof() {
     if (seek && Number.isFinite(audio.duration)) {
       seek.max = String(audio.duration);
       seek.value = '0';
+      paintSeek(0);
     }
     setMediaSessionMetadata();
     setStatus(`Loaded ${formatSeconds(audio.duration)}. loop=${audio.loop}.`);
@@ -100,7 +113,7 @@ function initM1Proof() {
       suppressWrap = false;
       manualSeek = false;
       lastTime = now;
-      if (seek && !draggingSeek) seek.value = String(now);
+      showSeek(now);
       return;
     }
     manualSeek = false;
@@ -113,7 +126,7 @@ function initM1Proof() {
       setStatus(`Wrap #${wrapCount} at ${formatSeconds(audio.duration)}. Session still open.`);
     }
     lastTime = now;
-    if (seek && !draggingSeek) seek.value = String(now);
+    showSeek(now);
   });
 
   // iOS keeps focus on a touched range, so focus is not a drag signal.
@@ -124,6 +137,11 @@ function initM1Proof() {
   };
   seek?.addEventListener('pointerdown', () => {
     draggingSeek = true;
+    // Also bound a tap with no drag, which fires no input event.
+    clearTimeout(dragTimer);
+    dragTimer = setTimeout(() => {
+      draggingSeek = false;
+    }, 800);
   });
   seek?.addEventListener('input', () => {
     // iOS may not deliver pointerup after a range drag.
@@ -143,6 +161,7 @@ function initM1Proof() {
     suppressWrap = true;
     lastTime = Number(seek.value);
     audio.currentTime = Number(seek.value);
+    paintSeek(Number(seek.value));
   });
 
   // Native media controls are shadow DOM and may not expose their scrubber.

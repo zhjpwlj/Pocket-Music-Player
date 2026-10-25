@@ -138,11 +138,38 @@ audio {
 }
 
 #m1-seek {
+  -webkit-appearance: none;
+  appearance: none;
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  margin: 0;
-  accent-color: var(--accent-primary);
+  height: 6px;
+  margin: 8px 0;
+  border-radius: 3px;
+  /* Paint the fill from --seek-progress: iOS does not reliably repaint the
+     native accent fill when value changes from script. */
+  background: linear-gradient(
+    to right,
+    var(--accent-primary) var(--seek-progress, 0%),
+    var(--progress-bg) var(--seek-progress, 0%)
+  );
+}
+
+#m1-seek::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--accent-primary);
+  border-radius: 50%;
+  background: var(--progress-thumb);
+}
+
+#m1-seek::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--accent-primary);
+  border-radius: 50%;
+  background: var(--progress-thumb);
 }
 
 button {
