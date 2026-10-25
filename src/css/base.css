@@ -35,9 +35,10 @@ body {
   background: var(--bg-primary);
 }
 
-/* iOS scrolls the root element even with body overflow hidden. */
+/* iOS scrolls the root element even with body overflow hidden.
+   clip, not hidden: hidden would make the root scrollable vertically. */
 html {
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
