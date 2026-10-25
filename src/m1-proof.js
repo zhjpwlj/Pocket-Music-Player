@@ -117,13 +117,23 @@ function initM1Proof() {
   });
 
   // iOS keeps focus on a touched range, so focus is not a drag signal.
+  let dragTimer = 0;
+  const stopSeekDrag = () => {
+    draggingSeek = false;
+    clearTimeout(dragTimer);
+  };
   seek?.addEventListener('pointerdown', () => {
     draggingSeek = true;
   });
-  for (const type of ['pointerup', 'pointercancel', 'blur']) {
-    seek?.addEventListener(type, () => {
+  seek?.addEventListener('input', () => {
+    // iOS may not deliver pointerup after a range drag.
+    clearTimeout(dragTimer);
+    dragTimer = setTimeout(() => {
       draggingSeek = false;
-    });
+    }, 800);
+  });
+  for (const type of ['pointerup', 'pointercancel', 'touchend', 'change', 'blur']) {
+    seek?.addEventListener(type, stopSeekDrag);
   }
 
   seek?.addEventListener('input', () => {

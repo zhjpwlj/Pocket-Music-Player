@@ -53,6 +53,8 @@ body {
 /* 100dvh is primary. 100lvh is the standalone fallback for iOS 26 builds
    that report dvh short by the status-bar height. */
 #app {
+  position: fixed;
+  inset: 0;
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -176,6 +178,16 @@ button:disabled {
   font-family: var(--font-family-mono);
   font-size: 13px;
   overflow-wrap: anywhere;
+}
+
+.app-version {
+  position: fixed;
+  right: max(8px, env(safe-area-inset-right));
+  bottom: max(6px, env(safe-area-inset-bottom));
+  color: var(--text-muted);
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+  pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,4 +1,7 @@
 // src/main.js
+const versionEl = document.getElementById('app-version');
+if (versionEl) versionEl.textContent = `v${__APP_VERSION__}`;
+
 const bootPromise = boot();
 bootPromise.then(() => {
   document.dispatchEvent(new CustomEvent('boot-complete'));
