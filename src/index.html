@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Pocket Music Player</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Pocket" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="theme-color" content="#05070d" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon-180.png" />
+    <link rel="stylesheet" href="/css/base.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="app-header">
+        <span class="app-mark">Pocket</span>
+        <span class="app-badge">M1</span>
+      </header>
+      <main class="app-main">
+        <h1>Shell + background audio proof</h1>
+        <p class="app-copy">
+          Install to Home Screen, then play the test tone and lock the screen.
+        </p>
+        <audio id="m1-proof" controls preload="metadata"></audio>
+        <label class="m1-seek-label" for="m1-seek">Manual seek (wrap guard)</label>
+        <input id="m1-seek" type="range" min="0" max="30" step="0.1" value="0" />
+        <button id="m1-proof-button" type="button">M1 proof — play 30s test tone</button>
+        <p id="m1-proof-status" role="status" aria-live="polite">Ready.</p>
+      </main>
+    </div>
+    <script type="module" src="/main.js"></script>
+    <script type="module" src="/m1-proof.js"></script>
+  </body>
+</html>
