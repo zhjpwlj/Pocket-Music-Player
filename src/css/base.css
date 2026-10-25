@@ -208,13 +208,14 @@ button:disabled {
 }
 
 .app-version {
-  position: fixed;
+  position: absolute;
   right: max(8px, env(safe-area-inset-right));
   bottom: max(6px, env(safe-area-inset-bottom));
   color: var(--text-muted);
   font-family: var(--font-family-mono);
   font-size: 11px;
   pointer-events: none;
+  transform: translateZ(0);
 }
 
 @media (prefers-reduced-motion: reduce) {
