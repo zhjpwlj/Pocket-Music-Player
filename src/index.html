@@ -17,23 +17,28 @@
     <div id="app">
       <header class="app-header">
         <span class="app-mark">Pocket</span>
-        <span class="app-badge">M1</span>
+        <span class="app-badge">M2</span>
       </header>
       <main class="app-main">
-        <h1>Shell + background audio proof</h1>
+        <h1>Player broker proof</h1>
         <p class="app-copy">
-          Install to Home Screen, then play the test tone and lock the screen.
+          Pick a track, play it, then swap the active element without a gap.
         </p>
-        <audio id="m1-proof" controls preload="metadata"></audio>
-        <label class="m1-seek-label" for="m1-seek">Manual seek (wrap guard)</label>
-        <input id="m1-seek" type="range" min="0" max="30" step="0.1" value="0" />
-        <button id="m1-proof-button" type="button">M1 proof — play 30s test tone</button>
-        <p id="m1-proof-status" role="status" aria-live="polite">Ready.</p>
+        <input id="m2-file" type="file" accept="audio/*" />
+        <div id="player-container"></div>
+        <div class="m2-actions">
+          <button id="m2-load" type="button">Load &amp; Play</button>
+          <button id="m2-swap" type="button">Swap to other element</button>
+          <button id="m2-toggle" type="button">Pause</button>
+        </div>
+        <label class="m1-seek-label" for="m2-seek">Seek</label>
+        <input id="m2-seek" type="range" min="0" max="30" step="0.1" value="0" />
+        <p id="m2-status" role="status" aria-live="polite">Ready.</p>
       </main>
       <span id="app-version" class="app-version"></span>
       <pre id="debug-log" class="debug-log" hidden></pre>
     </div>
     <script type="module" src="/main.js"></script>
-    <script type="module" src="/m1-proof.js"></script>
+    <script type="module" src="/m2-dev.js"></script>
   </body>
 </html>

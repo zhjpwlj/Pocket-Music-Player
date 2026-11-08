@@ -1,7 +1,7 @@
 # Pocket Music Player
 
-Client-side music player PWA. Current state: Milestone 1 — installable shell,
-Service Worker precache, COOP/COEP, and a static-blob background-audio proof.
+Client-side music player PWA. Current state: Milestone 2 — installable shell, Service Worker precache,
+COOP/COEP, and an A/B audio-element broker with blob URL ownership.
 
 ## Run
 
@@ -25,10 +25,11 @@ does not send COOP/COEP, which the format bridge needs for
 
 ## Docs
 
-- `MILESTONE-1.md` — scope, local evidence, device checklist, deviations.
+- `MILESTONE-1.md` — M1 shell and background-audio proof.
+- `MILESTONE-2.md` — A/B pool, blob lifecycle, broker, device checklist.
 - `public/assets/wasm/README.md` — placeholder disclosure.
 
 ## Device check
 
 Install to the iPhone Home Screen, then run the checklist in
-`MILESTONE-1.md` with Safari Web Inspector attached.
+`MILESTONE-2.md` with Safari Web Inspector attached.
