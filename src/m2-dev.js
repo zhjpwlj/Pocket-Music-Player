@@ -9,6 +9,12 @@ if (document.readyState === 'loading') {
   initM2();
 }
 
+const AUDIO_EXTENSIONS = /\.(mp3|m4a|m4b|aac|wav|flac|ogg|oga|opus|aif|aiff|webm|mp4)$/i;
+
+function isAudioFile(file) {
+  return file.type.startsWith('audio/') || AUDIO_EXTENSIONS.test(file.name);
+}
+
 function initM2() {
   const container = document.getElementById('player-container');
   const fileInput = document.getElementById('m2-file');
@@ -57,7 +63,14 @@ function initM2() {
   };
 
   fileInput.addEventListener('change', () => {
-    file = fileInput.files?.[0] ?? null;
+    const picked = fileInput.files?.[0] ?? null;
+    if (picked && !isAudioFile(picked)) {
+      file = null;
+      fileInput.value = '';
+      setStatus('That file is not audio.');
+      return;
+    }
+    file = picked;
     setStatus(file ? `Ready: ${file.name}` : 'Ready.');
   });
 
