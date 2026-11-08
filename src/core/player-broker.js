@@ -14,6 +14,7 @@ export function createPlayerBroker({ pool, blob = defaultBlob } = {}) {
   let state = 'idle';
   let pendingAutoplay = false;
   let pendingSeek = null;
+  let swapOutgoing = null;
   let lastUpdate = 0;
   const listeners = new Set();
 
@@ -61,9 +62,8 @@ export function createPlayerBroker({ pool, blob = defaultBlob } = {}) {
     emit('statechange');
   }
 
-  function play() {
-    if (!track) return;
-    other.pause();
+  function startPlayback({ exclusive = true } = {}) {
+    if (exclusive) other.pause();
     pool.audioLive?.pause();
     const result = active.play();
     if (result && typeof result.catch === 'function') {
@@ -73,6 +73,11 @@ export function createPlayerBroker({ pool, blob = defaultBlob } = {}) {
         emit('error', { error });
       });
     }
+  }
+
+  function play() {
+    if (!track) return;
+    startPlayback();
   }
 
   function pause() {
@@ -89,22 +94,27 @@ export function createPlayerBroker({ pool, blob = defaultBlob } = {}) {
     emit('time-update');
   }
 
-  // Dev-only A/B proof: same track, other element, same position.
+  // Dev-only A/B proof: same track, other element, same position. The
+  // outgoing element keeps playing until the incoming one reports `playing`,
+  // so the handover has no silent gap.
   function swapElement() {
     if (!file) return;
     const time = active.currentTime;
     const wasPlaying = !active.paused;
     const outgoing = active;
-    outgoing.pause();
     active = other;
     other = outgoing;
     pendingSeek = time;
     pendingAutoplay = wasPlaying;
+    swapOutgoing = wasPlaying ? outgoing : null;
     state = 'loading';
     blob.assignUrl(active, file);
-    blob.revokeElement(outgoing);
-    outgoing.removeAttribute('src');
-    outgoing.load();
+    if (!wasPlaying) {
+      outgoing.pause();
+      blob.revokeElement(outgoing);
+      outgoing.removeAttribute('src');
+      outgoing.load();
+    }
     emit('statechange');
   }
 
@@ -114,15 +124,34 @@ export function createPlayerBroker({ pool, blob = defaultBlob } = {}) {
 
   function onLoadedMetadata(element) {
     if (element !== active) return;
-    if (pendingSeek !== null) {
+    if (swapOutgoing) {
+      active.currentTime = swapOutgoing.currentTime;
+      pendingSeek = null;
+    } else if (pendingSeek !== null) {
       active.currentTime = pendingSeek;
       pendingSeek = null;
     }
     if (pendingAutoplay) {
       pendingAutoplay = false;
-      play();
+      startPlayback({ exclusive: !swapOutgoing });
     } else {
       state = 'paused';
+      emit('statechange');
+    }
+  }
+
+  function onPlaying(element) {
+    if (element !== active) return;
+    if (swapOutgoing) {
+      const outgoing = swapOutgoing;
+      swapOutgoing = null;
+      outgoing.pause();
+      blob.revokeElement(outgoing);
+      outgoing.removeAttribute('src');
+      outgoing.load();
+    }
+    if (state !== 'playing') {
+      state = 'playing';
       emit('statechange');
     }
   }
@@ -161,7 +190,7 @@ export function createPlayerBroker({ pool, blob = defaultBlob } = {}) {
     emit('error', { error: element.error });
   }
 
-  const events = { loadedmetadata: onLoadedMetadata, play: onPlay, pause: onPause, timeupdate: onTimeUpdate, ended: onEnded, error: onError };
+  const events = { loadedmetadata: onLoadedMetadata, play: onPlay, playing: onPlaying, pause: onPause, timeupdate: onTimeUpdate, ended: onEnded, error: onError };
   const bound = [];
   for (const element of [pool.audioA, pool.audioB]) {
     for (const [type, handler] of Object.entries(events)) {

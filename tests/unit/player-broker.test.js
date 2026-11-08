@@ -74,11 +74,17 @@ describe('player broker', () => {
     expect(broker.getCurrentElement()).toBe(pool.audioB);
     expect(pool.audioB.src).toMatch(/^blob:/);
     expect(pool.audioB.src).not.toBe(outgoingUrl);
-    expect(pool.audioA.src).toBe('');
-    expect(revokeObjectURL).toHaveBeenCalledWith(outgoingUrl);
     pool.audioB.dispatchEvent(new Event('loadedmetadata'));
     expect(pool.audioB.currentTime).toBe(12);
     expect(pool.audioB.playCalls).toBe(1);
+    // The outgoing element keeps playing until the incoming one is audible.
+    expect(pool.audioA.paused).toBe(false);
+    expect(pool.audioA.src).toBe(outgoingUrl);
+    expect(revokeObjectURL).not.toHaveBeenCalled();
+    pool.audioB.dispatchEvent(new Event('playing'));
+    expect(pool.audioA.paused).toBe(true);
+    expect(pool.audioA.src).toBe('');
+    expect(revokeObjectURL).toHaveBeenCalledWith(outgoingUrl);
   });
 
   it('stays paused after a swap while paused', () => {
